@@ -126,3 +126,132 @@
   - Used for index backup and restore
   - Supports full or incremental index backup
    
+## Importing Dataset to ElasticSearch
+
+[Moveielist](http://files.grouplens.org/datasets/movielens/ml-latest-small.zip)
+
+```
+$ curl -XPUT 172.28.128.3:9200/movies =d '
+  {
+         "mappings" : {
+                        "movie" : {
+                              "_all" : { "enabled" : false },
+                              "properties" : {
+                                              "year" : {
+                                                         "type" : "date"
+                                                       }
+                                              }
+                                   }
+                        }
+   }'
+ ```
+ 
+ To get the mappings
+ 
+ ```
+ $ curl -XGET 172.28.128.3:9200/movies/_mapping/movie?pretty
+ ```
+ Import One movie via curl
+ 
+ ```
+ $ curl -XPUT 172.28.128.3:9200/movies/movie/123456 -d '
+ {
+         "genre" : "SCi_FI",
+         "Title" : "Interstellar",
+         "year" : 2014
+  }'
+  ```
+  To import many movies at once,
+  
+  ```
+  $ wget http://media.sundog-soft.com/es/movies.json
+  $ curl http://172.28.128.3:9200/_bulk?pretty --data-binary @movies.json
+  ```
+  
+  To update the movies,
+  ```
+  $ curl -XGET 172.28.128.3:9200/movies/movie/123456?pretty
+  $ curl -XPOST 172.28.128.3:9200/movies/movie/123456/_update -d '
+    {
+         "doc" : {
+                  "title" : "Interstellar By Christopher Nolan"
+                 }
+     }'
+  ```
+  To Delete the movie
+  ```
+  $ curl -XDELETE 172.28.128.3:9200/movies/movie/123456
+  ```
+  
+  "Retry on conflict" to resolve the concurreny issues.
+  
+  **ElasticSearch Quires**
+  
+  [DSL](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html)
+  
+  * Match_phrase
+    * slop
+       - "quick brown fox" as "quick fox"
+       
+  * Pagination
+    
+    ```
+    $ curl <url>/movies/movie/_search?size=2&from=2&pretty
+    $ curl -XGET 172.28.128.3:9200/movies/movie/_search -d '
+      {
+           "from": 2,
+           "size": 2,
+           "query": { "match" { "genre" : "SCI-FI" } }
+       }'
+    ```
+  
+  * Sorting
+  * Filter Query
+     - must (AND)
+     - must_not 
+     - filter
+     
+     ```
+     $ curl http://172.28.128.3:9200/movies/_search?pretty -d '
+      {
+         "query" : {
+               "bool" : {
+                     "must" : { "match" : { "genre" : "SciFi" }},
+                     "must_not" : { "match" : { "title" : "trek" }},
+                     "filters" : { "range" : { "year" : { "gte" : 2010 , "lt" : 2015 }}}
+                     }
+           }
+       }'
+       
+      ```
+   * Fuziness
+   
+   ```
+   $ curl http://172.28.128.3:9200/movies/_search?pretty -d '
+     {
+         "query" : {
+               "fuzzy" : {
+                        "title" : { "value" : "intrstellar", "fuzziness" : 2 }
+                        }
+                    }
+      }'
+      
+   ```
+  * Prefix and wildcard matching
+  * Ngram
+  
+  
+ 
+ 
+    
+  
+           
+      
+  
+  
+  
+ 
+ 
+   
+                                                   
+                                
