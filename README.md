@@ -264,14 +264,18 @@ $ curl -XPUT 172.28.128.3:9200/movies =d '
      - should (OR)
      - filter
      
+     *Note:* "Bool query Doesn;t support filters"
+     ```
+     $   ##"filters" : { "range" : { "year" : { "gte" : 2010 , "lt" : 2015 }}}
+     ```
+     
      ```
      $ curl http://172.28.128.3:9200/movies/_search?pretty -d '
       {
          "query" : {
                "bool" : {
                      "must" : { "match" : { "genre" : "SciFi" }},
-                     "must_not" : { "match" : { "title" : "trek" }},
-                     "filters" : { "range" : { "year" : { "gte" : 2010 , "lt" : 2015 }}}
+                     "must_not" : { "match" : { "title" : "trek" }}
                      }
            }
        }'
@@ -293,13 +297,11 @@ $ curl -XPUT 172.28.128.3:9200/movies =d '
   * Prefix and wildcard matching
   * Ngram
   
+  ## Logstash
   
- 
- 
-    
+  ## Kibana
   
-           
-      
+  
   
   
   
