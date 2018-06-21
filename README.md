@@ -189,6 +189,41 @@ $ curl -XPUT 172.28.128.3:9200/movies =d '
   
   [DSL](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html)
   
+  * Match Query
+    ```
+    curl -s -XGET http://172.28.128.3:9200/movies/_search? -H 'Content-Type: application/json'  -d '
+     {
+         "query" : {
+                 "match" : {
+                             "title" : "interstellar"
+                           }
+                    }
+      }' | jq '.'
+    ```
+  
+  * Term
+   ```
+   $  curl -s -XGET http://172.28.128.3:9200/movies/_search? -H 'Content-Type: application/json'  -d '
+   {
+         "query" : {
+                 "match" : {
+                             "genre" : "SCI-FI"
+                           }
+                    }
+    }' | jq '.'
+   ```
+  * Range
+  ```
+  $ curl -s -XGET http://172.28.128.3:9200/movies/_search? -H 'Content-Type: application/json'  -d '
+    {
+         "query" : {
+                    "range" : {
+                             "year" : { "gte" : 1990, "lt": 2015 }
+                              }
+                   }
+    }' | jq '.'
+  ```
+  
   * Match_phrase
     * slop
        - "quick brown fox" as "quick fox"
@@ -197,18 +232,36 @@ $ curl -XPUT 172.28.128.3:9200/movies =d '
     
     ```
     $ curl <url>/movies/movie/_search?size=2&from=2&pretty
-    $ curl -XGET 172.28.128.3:9200/movies/movie/_search -d '
+    $ curl -XGET http://172.28.128.3:9200/movies/movie/_search -d '
       {
-           "from": 2,
-           "size": 2,
-           "query": { "match" { "genre" : "SCI-FI" } }
-       }'
+         "size" : 2,
+         "from" : 2,
+         "query" : {
+                 "match" : {
+                          "genre" : "SCI-FI"
+                           }
+                   }
+      }' | jq '.'
     ```
   
   * Sorting
+  
+  ```
+  $  curl -XGET http://172.28.128.3:9200/movies/movie/_search -d '
+   {
+      "query": {
+          "match" : {
+                    "genre" : "SCI-FI"
+                    }
+               },
+       "sort": { "year" : { "order" : "desc" } }
+   }' | jq '.'
+  ```
+  
   * Filter Query
      - must (AND)
      - must_not 
+     - should (OR)
      - filter
      
      ```
